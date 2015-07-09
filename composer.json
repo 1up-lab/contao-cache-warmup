@@ -1,0 +1,48 @@
+{
+  "name":"oneup/contao-cache-warmup",
+  "description":"This Contao Open Source CMS extension gives you the ability to run a page cache warmup.",
+  "keywords":["contao", "cache", "warmup", "extension", "module", "maintenance"],
+  "type":"contao-module",
+  "homepage":"http://1up.io",
+  "license":"MIT",
+  "authors":[
+    {
+      "name":"David Greminger",
+      "email":"dg@1up.io",
+      "homepage":"http://1up.io",
+      "role":"Developer"
+    }
+  ],
+  "support":{
+    "email":"hello@1up.io",
+    "issues":"https://github.com/1up-lab/contao-cache-warmup/issues",
+    "irc":"irc://irc.freenode.org/contao.dev",
+    "source":"https://github.com/1up-lab/contao-cache-warmup"
+  },
+  "require":{
+    "php":">=5.4",
+    "contao/core":">=3.2,<3.6-dev",
+    "contao-community-alliance/composer-plugin": "~2.0",
+    "guzzlehttp/guzzle": "~5.3"
+  },
+  "conflict": {
+    "contao/core": "3.4.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Oneup\\Contao\\": "src"
+    }
+  },
+  "extra": {
+    "contao": {
+      "sources": {
+        "contao": "system/modules/cache-warmup"
+      }
+    },
+    "branch-alias": {
+      "dev-master": "0.0.x-dev"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+}

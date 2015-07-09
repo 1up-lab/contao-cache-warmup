@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.1">
+    <file datatype="php" original="system/modules/contao-cache-warmup/languages/en/tl_maintenance.php" source-language="en">
+        <body>
+            <trans-unit id="tl_maintenance.cacheWarmup">
+                <source>Warm up the frontend cache</source>
+            </trans-unit>
+            <trans-unit id="tl_maintenance.cacheWarmupSubmit">
+                <source>Warmup cache</source>
+            </trans-unit>
+            <trans-unit id="tl_maintenance.noCacheable">
+                <source>No cacheable pages found</source>
+            </trans-unit>
+            <trans-unit id="tl_maintenance.cacheWarmupNote">
+                <source>Please wait for the page to load completely before you proceed!</source>
+            </trans-unit>
+            <trans-unit id="tl_maintenance.cacheWarmupLoading">
+                <source>Please wait while the cache is being warmed up.</source>
+            </trans-unit>
+            <trans-unit id="tl_maintenance.cacheWarmupComplete">
+                <source>The cache has been warmed up. You can now proceed.</source>
+            </trans-unit>
+            <trans-unit id="tl_maintenance.cacheFrontendUser.0">
+                <source>Front end user (not implemented yet)</source>
+            </trans-unit>
+            <trans-unit id="tl_maintenance.cacheFrontendUser.1">
+                <source>Automatically log in a front end user to cache protected pages.</source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

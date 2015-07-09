@@ -1,0 +1,78 @@
+
+<div id="tl_maintenance_cache_warmup" class="maintenance_<?php echo $this->isActive ? 'active' : 'inactive'; ?>">
+
+    <h2 class="sub_headline_cache_warmup"><?php echo $this->cacheWarmupHeadline; ?></h2>
+
+    <?php if ($this->cacheWarmupMessage): ?>
+    <div class="tl_message">
+        <p class="tl_error"><?php echo $this->cacheWarmupMessage; ?></p>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($this->isRunning): ?>
+    <div id="tl_cache_warmup">
+        <p id="cache_warmup_loading"><?php echo $this->loading; ?></p>
+        <p id="cache_warmup_complete" style="display:none"><?php echo $this->complete; ?></p>
+        <p style="margin-bottom:0"><?php echo $this->content; ?></p>
+    </div>
+
+    <script>
+        window.addEvent('domready', function() {
+            var urls = $$('.page_url'),
+                last = urls.length-1, url,
+                req = null;
+                uri = new URI(window.location.href);
+
+            urls.each(function(el, i) {
+                uri.setData({
+                    cacheUrl: el.getAttribute('data-url')
+                }, true);
+
+                req = new Request({
+                    'url': uri.toString(),
+                    onComplete: function() {
+                        el.addClass('tl_green');
+                        if (i == last) {
+                            $('cache_warmup_loading').setStyle('display', 'none');
+                            $('cache_warmup_complete').setStyle('display', 'block');
+                        }
+                    }
+                });
+
+                req.get();
+            });
+        });
+    </script>
+
+    <form action="<?php echo $this->action; ?>" class="tl_form" method="get">
+        <div class="tl_submit_container">
+            <input type="hidden" name="do" value="maintenance">
+            <input type="submit" id="cache_warmup" class="tl_submit" value="<?php echo $this->cacheWarmupContinue; ?>">
+        </div>
+    </form>
+
+    <?php else: ?>
+    <form action="<?php echo $this->action; ?>" class="tl_form" method="get">
+        <div class="tl_formbody_edit">
+            <input type="hidden" name="act" value="cache_warmup">
+            <input type="hidden" name="do" value="maintenance">
+            <input type="hidden" name="rt" value="<?php echo REQUEST_TOKEN; ?>">
+            <div class="tl_tbox">
+                <h3><label for="ctrl_user"><?php echo $this->cacheWarmupLabel; ?></label></h3>
+                <select name="user" id="ctrl_user" class="tl_select">
+                    <?php foreach ($this->user as $id=>$name): ?>
+                    <option disabled="disabled" value="<?php echo $id; ?>"><?php echo $name; ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <?php if ($this->cacheWarmupHelp): ?>
+                <p class="tl_help tl_tip"><?php echo $this->cacheWarmupHelp; ?></p>
+                <?php endif; ?>
+            </div>
+        </div>
+        <div class="tl_submit_container">
+            <input type="submit" id="cache_warmup" class="tl_submit" value="<?php echo $this->cacheWarmupSubmit; ?>">
+        </div>
+    </form>
+    <?php endif; ?>
+
+</div>
