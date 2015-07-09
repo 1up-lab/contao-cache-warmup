@@ -17,3 +17,7 @@ composer.phar
 
 # Transifex
 /.tx/
+
+# Assets
+contao/assets/images/cache-256.png
+contao/assets/images/Fleche_raccourci.png
