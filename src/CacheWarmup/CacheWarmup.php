@@ -12,7 +12,7 @@ class CacheWarmup extends \Backend implements \executable
         parent::__construct();
 
         // Add custom stylesheet
-        $GLOBALS['TL_CSS'][] = 'system/modules/contao-cache-warmup/assets/css/module.css';
+        $GLOBALS['TL_CSS'][] = 'system/modules/cache-warmup/assets/css/module.css';
     }
 
     /**
