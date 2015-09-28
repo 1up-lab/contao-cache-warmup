@@ -75,12 +75,32 @@ class CacheWarmup extends \Backend implements \executable
             $objPages = \PageModel::findAll();
 
             $arrPages = [];
+            $sitemaps = [];
+            $arrXml = [];
             $objPages->reset();
 
             while (null !== $objPages && $objPages->next()) {
                 $objPage = $objPages->current();
+
+                if ($objPage->createSitemap && 'root' === $objPage->type) {
+                    $sitemaps[] = $objPage->sitemapName;
+                }
+
                 $arrPages[] = $baseUrl . $this->generateFrontendUrl($objPage->row());
             }
+
+            foreach($sitemaps as $sitemap) {
+                $filename = sprintf("share/%s.xml", $sitemap);
+                $file = new \File($filename);
+
+                $xml = simplexml_load_string($file->getContent());
+
+                foreach($xml->children() as $page) {
+                    $arrXml[] = (string) $page->loc;
+                }
+            }
+
+            $arrPages = array_values(array_filter(array_unique(array_merge($arrPages, $arrXml))));
 
             // Check the request token (see #4007)
             if (!isset($_GET['rt']) || !\RequestToken::validate(\Input::get('rt'))) {
@@ -125,7 +145,7 @@ class CacheWarmup extends \Backend implements \executable
             if (is_numeric(\Input::get('user')) && \Input::get('user') > 0) {
                 // Insert a new session
                 // $this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")
-                    // ->execute(\Input::get('user'), $time, 'FE_USER_AUTH', session_id(), \Environment::get('ip'), $strHash);
+                // ->execute(\Input::get('user'), $time, 'FE_USER_AUTH', session_id(), \Environment::get('ip'), $strHash);
 
                 // Set the cookie
                 // $this->setCookie('FE_USER_AUTH', $strHash, ($time + \Config::get('sessionTimeout')), null, null, false, true);
