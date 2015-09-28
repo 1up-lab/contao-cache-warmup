@@ -91,12 +91,14 @@ class CacheWarmup extends \Backend implements \executable
 
             foreach($sitemaps as $sitemap) {
                 $filename = sprintf("share/%s.xml", $sitemap);
-                $file = new \File($filename);
+                $file = new \File($filename, true);
 
-                $xml = simplexml_load_string($file->getContent());
+                if ($file->exists()) {
+                    $xml = simplexml_load_string($file->getContent());
 
-                foreach($xml->children() as $page) {
-                    $arrXml[] = (string) $page->loc;
+                    foreach($xml->children() as $page) {
+                        $arrXml[] = (string) $page->loc;
+                    }
                 }
             }
 
