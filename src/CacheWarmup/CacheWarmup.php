@@ -13,7 +13,7 @@ class CacheWarmup extends \Backend implements \executable
         parent::__construct();
 
         // Add custom stylesheet
-        if ('BE' === TL_MODE ) {
+        if ('BE' === TL_MODE) {
             $GLOBALS['TL_CSS'][] = 'system/modules/cache-warmup/assets/css/module.css';
         }
     }
@@ -58,8 +58,7 @@ class CacheWarmup extends \Backend implements \executable
                 $desktopClient->send($desktopReq);
 
                 http_response_code(200);
-
-            } catch(TransferException $e) {
+            } catch (TransferException $e) {
                 http_response_code($e->getResponse()->getStatusCode());
             }
 
@@ -80,8 +79,7 @@ class CacheWarmup extends \Backend implements \executable
 
         // Get the urls from page tree
         if (\Input::get('act') == 'cache_warmup') {
-
-            $baseUrl  = \Environment::get('url') . \Environment::get('path').'/';
+            $baseUrl  = \Environment::get('url').\Environment::get('path').'/';
             $objPages = \PageModel::findAll();
 
             $arrPages = [];
@@ -96,17 +94,17 @@ class CacheWarmup extends \Backend implements \executable
                     $sitemaps[] = $objPage->sitemapName;
                 }
 
-                $arrPages[] = $baseUrl . $this->generateFrontendUrl($objPage->row());
+                $arrPages[] = $baseUrl.$this->generateFrontendUrl($objPage->row());
             }
 
-            foreach($sitemaps as $sitemap) {
+            foreach ($sitemaps as $sitemap) {
                 $filename = sprintf("share/%s.xml", $sitemap);
                 $file = new \File($filename, true);
 
                 if ($file->exists()) {
                     $xml = simplexml_load_string($file->getContent());
 
-                    foreach($xml->children() as $page) {
+                    foreach ($xml->children() as $page) {
                         $arrXml[] = (string) $page->loc;
                     }
                 }
@@ -145,7 +143,7 @@ class CacheWarmup extends \Backend implements \executable
             $this->setCookie('FE_PREVIEW', 0, ($time - 86400));
 
             // Calculate the hash
-            $strHash = sha1(session_id() . (!\Config::get('disableIpCheck') ? \Environment::get('ip') : '') . 'FE_USER_AUTH');
+            $strHash = sha1(session_id().(!\Config::get('disableIpCheck') ? \Environment::get('ip') : '').'FE_USER_AUTH');
 
             // Remove old sessions
             $this->Database
@@ -174,13 +172,13 @@ class CacheWarmup extends \Backend implements \executable
             $rand      = rand();
 
             // Display the pages
-            for ($i=0, $c=count($arrPages); $i<$c; $i++) {
+            for ($i = 0, $c = count($arrPages); $i<$c; $i++) {
                 // Use StringUtil class when used Contao version is minimum 3.5.1
                 // see https://github.com/contao/core-bundle/issues/309
-                if (version_compare(VERSION .'.'.BUILD, '3.5.1', '<')) {
-                    $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \String::substr($arrPages[$i], 100) . '</span><br>';
+                if (version_compare(VERSION.'.'.BUILD, '3.5.1', '<')) {
+                    $strBuffer .= '<span class="page_url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\String::substr($arrPages[$i], 100).'</span><br>';
                 } else {
-                    $strBuffer .= '<span class="page_url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . \StringUtil::substr($arrPages[$i], 100) . '</span><br>';
+                    $strBuffer .= '<span class="page_url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\StringUtil::substr($arrPages[$i], 100).'</span><br>';
                 }
 
                 unset($arrPages[$i]); // see #5681
@@ -197,13 +195,13 @@ class CacheWarmup extends \Backend implements \executable
             return $objTemplate->parse();
         }
 
-        $arrUser = array(''=>'-');
+        $arrUser = array('' => '-');
 
         // Get active front end users
         $objUser = $this->Database->execute("SELECT id, username FROM tl_member WHERE disable!=1 AND (start='' OR start<$time) AND (stop='' OR stop>$time) ORDER BY username");
 
         while ($objUser->next()) {
-            $arrUser[$objUser->id] = $objUser->username . ' (' . $objUser->id . ')';
+            $arrUser[$objUser->id] = $objUser->username.' ('.$objUser->id.')';
         }
 
         // Default variables
