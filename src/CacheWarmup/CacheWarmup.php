@@ -4,6 +4,7 @@ namespace Oneup\Contao\CacheWarmup;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\TransferException;
 
 class CacheWarmup extends \Backend implements \executable
 {
@@ -52,8 +53,15 @@ class CacheWarmup extends \Backend implements \executable
                 'cookies' => $jar,
             ]);
 
-            echo $mobileClient->send($mobileReq);
-            echo $desktopClient->send($desktopReq);
+            try {
+                $mobileClient->send($mobileReq);
+                $desktopClient->send($desktopReq);
+
+                http_response_code(200);
+
+            } catch(TransferException $e) {
+                http_response_code($e->getResponse()->getStatusCode());
+            }
 
             exit;
         }
