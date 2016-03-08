@@ -19,7 +19,7 @@
     <script>
         window.addEvent('domready', function() {
             var urls = $$('.page_url'),
-                last = urls.length-1, url,
+                complete = 0, url,
                 req = null;
                 uri = new URI(window.location.href);
 
@@ -38,7 +38,9 @@
                         el.set('text', el.get('text') + ' - ' + xhr.status );
                     },
                     onComplete: function() {
-                        if (i == last) {
+                        complete++;
+
+                        if (complete === urls.length) {
                             $('cache_warmup_loading').setStyle('display', 'none');
                             $('cache_warmup_complete').setStyle('display', 'block');
                         }
