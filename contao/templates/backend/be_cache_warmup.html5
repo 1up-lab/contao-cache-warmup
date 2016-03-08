@@ -30,8 +30,14 @@
 
                 req = new Request({
                     'url': uri.toString(),
-                    onComplete: function() {
+                    onSuccess: function() {
                         el.addClass('tl_green');
+                    },
+                    onFailure: function(xhr) {
+                        el.addClass('tl_red');
+                        el.set('text', el.get('text') + ' - ' + xhr.status );
+                    },
+                    onComplete: function() {
                         if (i == last) {
                             $('cache_warmup_loading').setStyle('display', 'none');
                             $('cache_warmup_complete').setStyle('display', 'block');
