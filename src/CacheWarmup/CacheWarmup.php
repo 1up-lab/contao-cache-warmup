@@ -137,9 +137,7 @@ class CacheWarmup extends \Backend implements \executable
                 $this->redirect($this->getReferer());
             }
 
-            // Truncate the image cache
             $this->import('Automator');
-            $this->Automator->purgeImageCache();
 
             // Truncate the page cache
             $this->Automator->purgePageCache();
