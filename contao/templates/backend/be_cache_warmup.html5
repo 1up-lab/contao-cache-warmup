@@ -17,37 +17,38 @@
     </div>
 
     <script>
-        window.addEvent('domready', function() {
-            var urls = $$('.page_url'),
-                complete = 0, url,
-                req = null;
-                uri = new URI(window.location.href);
+        $.noConflict();
 
-            urls.each(function(el, i) {
-                uri.setData({
-                    cacheUrl: el.getAttribute('data-url')
-                }, true);
+        jQuery(document).ready(function(){
+            var urls = jQuery('.page-url'),
+                complete = 0;
 
-                req = new Request({
-                    'url': uri.toString(),
-                    onSuccess: function() {
-                        el.addClass('tl_green');
+            jQuery(urls).each(function(index, item) {
+                item = jQuery(item);
+
+                jQuery.ajaxQueue({
+                    url: window.location.href,
+                    data: {
+                        cacheUrl: item.attr('data-url')
                     },
-                    onFailure: function(xhr) {
-                        el.addClass('tl_red');
-                        el.set('text', el.get('text') + ' - ' + xhr.status );
+                    type: 'GET',
+
+                    success: function(data, textStatus, jqXHR) {
+                        item.addClass('tl_green');
                     },
-                    onComplete: function() {
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        item.addClass('tl_red');
+                        item.text(item.text() + ' - ' + jqXHR.status );
+                    },
+                    complete: function(jqXHR, textStatus) {
                         complete++;
-
+                        
                         if (complete === urls.length) {
-                            $('cache_warmup_loading').setStyle('display', 'none');
-                            $('cache_warmup_complete').setStyle('display', 'block');
+                            jQuery('#cache_warmup_loading').css('display', 'none');
+                            jQuery('#cache_warmup_complete').css('display', 'block');
                         }
                     }
                 });
-
-                req.get();
             });
         });
     </script>

@@ -15,6 +15,11 @@ class CacheWarmup extends \Backend implements \executable
         // Add custom stylesheet
         if ('BE' === TL_MODE) {
             $GLOBALS['TL_CSS'][] = 'system/modules/cache-warmup/assets/css/module.css';
+
+            if ($this->isActive()) {
+                $GLOBALS['TL_JAVASCRIPT'][] = 'assets/jquery/core/' . $GLOBALS['TL_ASSETS']['JQUERY'] . '/jquery.min.js|static';
+                $GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/cache-warmup/assets/js/jquery.ajaxQueue.js|static';
+            }
         }
     }
 
@@ -176,9 +181,9 @@ class CacheWarmup extends \Backend implements \executable
                 // Use StringUtil class when used Contao version is minimum 3.5.1
                 // see https://github.com/contao/core-bundle/issues/309
                 if (version_compare(VERSION.'.'.BUILD, '3.5.5', '>=')) {
-                    $strBuffer .= '<span class="page_url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\StringUtil::substr($arrPages[$i], 100).'</span><br>';
+                    $strBuffer .= '<span class="page-url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\StringUtil::substr($arrPages[$i], 100).'</span><br>';
                 } else {
-                    $strBuffer .= '<span class="page_url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\String::substr($arrPages[$i], 100).'</span><br>';
+                    $strBuffer .= '<span class="page-url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\String::substr($arrPages[$i], 100).'</span><br>';
                 }
 
                 unset($arrPages[$i]); // see #5681
