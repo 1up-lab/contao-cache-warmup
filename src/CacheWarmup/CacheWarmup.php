@@ -5,8 +5,6 @@ namespace Oneup\Contao\CacheWarmup;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\TransferException;
-use GuzzleHttp\Psr7;
 
 class CacheWarmup extends \Backend implements \executable
 {
