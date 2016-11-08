@@ -4,7 +4,9 @@ namespace Oneup\Contao\CacheWarmup;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\TransferException;
+use GuzzleHttp\Psr7;
 
 class CacheWarmup extends \Backend implements \executable
 {
@@ -46,25 +48,25 @@ class CacheWarmup extends \Backend implements \executable
             // $this->setCookie('FE_AUTO_LOGIN', \Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, false, true);
 
             $mobileClient  = new Client();
-            $mobileReq     = $mobileClient->createRequest('GET', $url, [
-                'headers' => [
-                    'User-Agent' => 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5',
-                ],
-                'cookies' => $jar,
-            ]);
-
             $desktopClient = new Client();
-            $desktopReq    = $desktopClient->createRequest('GET', $url, [
-                'cookies' => $jar,
-            ]);
 
             try {
-                $mobileClient->send($mobileReq);
-                $desktopClient->send($desktopReq);
+                $mobileClient->request('GET', $url, [
+                    'headers' => [
+                        'User-Agent' => 'Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_3 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Version/5.0.2 Mobile/8J2 Safari/6533.18.5',
+                    ],
+                    'cookies' => $jar,
+                ]);
+
+                $desktopClient->request('GET', $url, [
+                    'cookies' => $jar,
+                ]);
 
                 http_response_code(200);
-            } catch (TransferException $e) {
-                http_response_code($e->getResponse()->getStatusCode());
+            } catch (RequestException $e) {
+                if ($e->hasResponse()) {
+                    http_response_code(Psr7\str($e->getResponse()->getStatusCode()));
+                }
             }
 
             exit;
