@@ -64,9 +64,7 @@ class CacheWarmup extends \Backend implements \executable
 
                 http_response_code(200);
             } catch (RequestException $e) {
-                if ($e->hasResponse()) {
-                    http_response_code(Psr7\str($e->getResponse()->getStatusCode()));
-                }
+                http_response_code($e->getCode());
             }
 
             exit;

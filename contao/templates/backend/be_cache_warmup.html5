@@ -21,13 +21,14 @@
 
         jQuery(document).ready(function(){
             var urls = jQuery('.page-url'),
-                complete = 0;
+                complete = 0,
+                baseUrl = window.location.href;
 
             jQuery(urls).each(function(index, item) {
                 item = jQuery(item);
 
                 jQuery.ajaxQueue({
-                    url: window.location.href,
+                    url: baseUrl,
                     data: {
                         cacheUrl: item.attr('data-url')
                     },
