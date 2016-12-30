@@ -125,7 +125,7 @@ class CacheWarmup extends \Backend implements \executable
             if (isset($GLOBALS['TL_HOOKS']['getCacheablePages']) && is_array($GLOBALS['TL_HOOKS']['getCacheablePages'])) {
                 foreach ($GLOBALS['TL_HOOKS']['getCacheablePages'] as $callback) {
                     $this->import($callback[0]);
-                    $arrPages = $this->$callback[0]->$callback[1]($arrPages);
+                    $arrPages = $this->{$callback[0]}->{$callback[1]}($arrPages);
                 }
             }
 
