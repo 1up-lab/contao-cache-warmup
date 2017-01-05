@@ -176,10 +176,10 @@ class CacheWarmup extends \Backend implements \executable
             for ($i = 0, $c = count($arrPages); $i<$c; $i++) {
                 // Use StringUtil class when used Contao version is minimum 3.5.1
                 // see https://github.com/contao/core-bundle/issues/309
-                if (version_compare(VERSION.'.'.BUILD, '3.5.5', '>=')) {
-                    $strBuffer .= '<span class="page-url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\StringUtil::substr($arrPages[$i], 100).'</span><br>';
-                } else {
+                if (version_compare(VERSION .'.'.BUILD, '3.5.1', '<')) {
                     $strBuffer .= '<span class="page-url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\String::substr($arrPages[$i], 100).'</span><br>';
+                } else {
+                    $strBuffer .= '<span class="page-url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\StringUtil::substr($arrPages[$i], 100).'</span><br>';
                 }
 
                 unset($arrPages[$i]); // see #5681
