@@ -17,7 +17,7 @@
     </div>
 
     <script>
-        $.noConflict();
+        jQuery.noConflict();
 
         jQuery(document).ready(function(){
             var urls = jQuery('.page-url'),
