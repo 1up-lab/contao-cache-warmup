@@ -1,5 +1,5 @@
 {
-  "name":"oneup/contao-page-cache-warmup",
+  "name":"oneup/contao-cache-warmup",
   "description":"This Contao Open Source CMS extension gives you the ability to run a page cache warmup.",
   "keywords":["contao", "cache", "warmup", "extension", "module", "maintenance"],
   "type":"contao-module",
