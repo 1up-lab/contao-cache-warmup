@@ -1,12 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Oneup\Contao\CacheWarmup;
 
+use Contao\Backend;
+use Contao\BackendTemplate;
+use Contao\Config;
+use Contao\Environment;
+use Contao\File;
+use Contao\Input;
+use Contao\PageModel;
+use Contao\RequestToken;
+use Contao\StringUtil;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\RequestException;
 
-class CacheWarmup extends \Backend implements \executable
+class CacheWarmup extends Backend implements \executable
 {
     public function __construct()
     {
@@ -24,28 +35,29 @@ class CacheWarmup extends \Backend implements \executable
     }
 
     /**
-     * Return true if the module is active
-     * @return boolean
+     * Return true if the module is active.
+     *
+     * @return bool
      */
     public function isActive()
     {
-        return (\Input::get('act') == 'cache_warmup');
+        return 'cache_warmup' === Input::get('act');
     }
 
     public function run()
     {
         // Warmup the cache
-        if (\Environment::get('isAjaxRequest') && null !== \Input::get('cacheUrl')) {
-            $url = preg_replace('/&#(.)*/', '', \Input::get('cacheUrl'));
+        if (Environment::get('isAjaxRequest') && null !== Input::get('cacheUrl')) {
+            $url = preg_replace('/&#(.)*/', '', Input::get('cacheUrl'));
 
             $jar = new CookieJar();
             $jar->clear();
 
             // TODO: implement frontend user
             // $this->setCookie('FE_USER_AUTH', $strHash, ($time - 86400), null, null, false, true);
-            // $this->setCookie('FE_AUTO_LOGIN', \Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, false, true);
+            // $this->setCookie('FE_AUTO_LOGIN', Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, false, true);
 
-            $mobileClient  = new Client();
+            $mobileClient = new Client();
             $desktopClient = new Client();
 
             try {
@@ -69,21 +81,21 @@ class CacheWarmup extends \Backend implements \executable
         }
 
         $time = time();
-        $objTemplate                      = new \BackendTemplate('be_cache_warmup');
-        $objTemplate->action              = ampersand(\Environment::get('request'));
+        $objTemplate = new BackendTemplate('be_cache_warmup');
+        $objTemplate->action = ampersand(Environment::get('request'));
         $objTemplate->cacheWarmupHeadline = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmup'];
-        $objTemplate->isActive            = $this->isActive();
+        $objTemplate->isActive = $this->isActive();
 
         // Add the error message
-        if ($_SESSION['REBUILD_CACHE_ERROR'] != '') {
+        if ('' !== $_SESSION['REBUILD_CACHE_ERROR']) {
             $objTemplate->cacheWarmupMessage = $_SESSION['REBUILD_CACHE_ERROR'];
             $_SESSION['REBUILD_CACHE_ERROR'] = '';
         }
 
         // Get the urls from page tree
-        if (\Input::get('act') == 'cache_warmup') {
-            $baseUrl  = \Environment::get('url').\Environment::get('path').'/';
-            $objPages = \PageModel::findAll();
+        if ('cache_warmup' === Input::get('act')) {
+            $baseUrl = Environment::get('url') . Environment::get('path') . '/';
+            $objPages = PageModel::findAll();
 
             $arrPages = [];
             $sitemaps = [];
@@ -97,12 +109,12 @@ class CacheWarmup extends \Backend implements \executable
                     $sitemaps[] = $objPage->sitemapName;
                 }
 
-                $arrPages[] = $baseUrl.$this->generateFrontendUrl($objPage->row());
+                $arrPages[] = $baseUrl . $this->generateFrontendUrl($objPage->row());
             }
 
             foreach ($sitemaps as $sitemap) {
-                $filename = sprintf("share/%s.xml", $sitemap);
-                $file = new \File($filename, true);
+                $filename = sprintf('share/%s.xml', $sitemap);
+                $file = new File($filename, true);
 
                 if ($file->exists()) {
                     $xml = simplexml_load_string($file->getContent());
@@ -116,13 +128,13 @@ class CacheWarmup extends \Backend implements \executable
             $arrPages = array_values(array_filter(array_unique(array_merge($arrPages, $arrXml))));
 
             // Check the request token (see #4007)
-            if (!isset($_GET['rt']) || !\RequestToken::validate(\Input::get('rt'))) {
-                $this->Session->set('INVALID_TOKEN_URL', \Environment::get('request'));
+            if (!isset($_GET['rt']) || !RequestToken::validate(Input::get('rt'))) {
+                $this->Session->set('INVALID_TOKEN_URL', Environment::get('request'));
                 $this->redirect('contao/confirm.php');
             }
 
             // HOOK: take additional cacheable pages
-            if (isset($GLOBALS['TL_HOOKS']['getCacheablePages']) && is_array($GLOBALS['TL_HOOKS']['getCacheablePages'])) {
+            if (isset($GLOBALS['TL_HOOKS']['getCacheablePages']) && \is_array($GLOBALS['TL_HOOKS']['getCacheablePages'])) {
                 foreach ($GLOBALS['TL_HOOKS']['getCacheablePages'] as $callback) {
                     $this->import($callback[0]);
                     $arrPages = $this->{$callback[0]}->{$callback[1]}($arrPages);
@@ -144,71 +156,64 @@ class CacheWarmup extends \Backend implements \executable
             $this->setCookie('FE_PREVIEW', 0, ($time - 86400));
 
             // Calculate the hash
-            $strHash = sha1(session_id().(!\Config::get('disableIpCheck') ? \Environment::get('ip') : '').'FE_USER_AUTH');
+            $strHash = sha1(session_id() . (!Config::get('disableIpCheck') ? Environment::get('ip') : '') . 'FE_USER_AUTH');
 
             // Remove old sessions
             $this->Database
-                ->prepare("DELETE FROM tl_session WHERE tstamp<? OR hash=?")
-                ->execute(($time - \Config::get('sessionTimeout')), $strHash);
+                ->prepare('DELETE FROM tl_session WHERE tstamp<? OR hash=?')
+                ->execute(($time - Config::get('sessionTimeout')), $strHash);
 
             // TODO: apply to guzzle
             // Log in the front end user
-            if (is_numeric(\Input::get('user')) && \Input::get('user') > 0) {
+            if (is_numeric(Input::get('user')) && Input::get('user') > 0) {
                 // Insert a new session
                 // $this->Database->prepare("INSERT INTO tl_session (pid, tstamp, name, sessionID, ip, hash) VALUES (?, ?, ?, ?, ?, ?)")
-                // ->execute(\Input::get('user'), $time, 'FE_USER_AUTH', session_id(), \Environment::get('ip'), $strHash);
+                // ->execute(Input::get('user'), $time, 'FE_USER_AUTH', session_id(), Environment::get('ip'), $strHash);
 
                 // Set the cookie
-                // $this->setCookie('FE_USER_AUTH', $strHash, ($time + \Config::get('sessionTimeout')), null, null, false, true);
+                // $this->setCookie('FE_USER_AUTH', $strHash, ($time + Config::get('sessionTimeout')), null, null, false, true);
             }
 
             // Log out the front end user
-            else {
-                // Unset the cookies
-                // $this->setCookie('FE_USER_AUTH', $strHash, ($time - 86400), null, null, false, true);
-                // $this->setCookie('FE_AUTO_LOGIN', \Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, false, true);
-            }
+
+            // Unset the cookies
+            // $this->setCookie('FE_USER_AUTH', $strHash, ($time - 86400), null, null, false, true);
+            // $this->setCookie('FE_AUTO_LOGIN', Input::cookie('FE_AUTO_LOGIN'), ($time - 86400), null, null, false, true);
 
             $strBuffer = '';
-            $rand      = rand();
+            $rand = random_int(0, getrandmax());
 
             // Display the pages
-            for ($i = 0, $c = count($arrPages); $i<$c; $i++) {
-                // Use StringUtil class when used Contao version is minimum 3.5.1
-                // see https://github.com/contao/core-bundle/issues/309
-                if (version_compare(VERSION .'.'.BUILD, '3.5.1', '<')) {
-                    $strBuffer .= '<span class="page-url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\String::substr($arrPages[$i], 100).'</span><br>';
-                } else {
-                    $strBuffer .= '<span class="page-url" data-url="'.$arrPages[$i].'#'.$rand.$i.'">'.\StringUtil::substr($arrPages[$i], 100).'</span><br>';
-                }
+            for ($i = 0, $c = \count($arrPages); $i < $c; ++$i) {
+                $strBuffer .= '<span class="page-url" data-url="' . $arrPages[$i] . '#' . $rand . $i . '">' . StringUtil::substr($arrPages[$i], 100) . '</span><br>';
 
                 unset($arrPages[$i]); // see #5681
             }
 
-            $objTemplate->content             = $strBuffer;
-            $objTemplate->note                = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmupNote'];
-            $objTemplate->loading             = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmupLoading'];
-            $objTemplate->complete            = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmupComplete'];
+            $objTemplate->content = $strBuffer;
+            $objTemplate->note = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmupNote'];
+            $objTemplate->loading = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmupLoading'];
+            $objTemplate->complete = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmupComplete'];
             $objTemplate->cacheWarmupContinue = $GLOBALS['TL_LANG']['MSC']['continue'];
-            $objTemplate->theme               = \Backend::getTheme();
-            $objTemplate->isRunning           = true;
+            $objTemplate->theme = Backend::getTheme();
+            $objTemplate->isRunning = true;
 
             return $objTemplate->parse();
         }
 
-        $arrUser = array('' => '-');
+        $arrUser = ['' => '-'];
 
         // Get active front end users
         $objUser = $this->Database->execute("SELECT id, username FROM tl_member WHERE disable!=1 AND (start='' OR start<$time) AND (stop='' OR stop>$time) ORDER BY username");
 
         while ($objUser->next()) {
-            $arrUser[$objUser->id] = $objUser->username.' ('.$objUser->id.')';
+            $arrUser[$objUser->id] = $objUser->username . ' (' . $objUser->id . ')';
         }
 
         // Default variables
-        $objTemplate->user              = $arrUser;
-        $objTemplate->cacheWarmupLabel  = $GLOBALS['TL_LANG']['tl_maintenance']['cacheFrontendUser'][0];
-        $objTemplate->cacheWarmupHelp   = (\Config::get('showHelp') && strlen($GLOBALS['TL_LANG']['tl_maintenance']['cacheFrontendUser'][1])) ? $GLOBALS['TL_LANG']['tl_maintenance']['cacheFrontendUser'][1] : '';
+        $objTemplate->user = $arrUser;
+        $objTemplate->cacheWarmupLabel = $GLOBALS['TL_LANG']['tl_maintenance']['cacheFrontendUser'][0];
+        $objTemplate->cacheWarmupHelp = (Config::get('showHelp') && \strlen($GLOBALS['TL_LANG']['tl_maintenance']['cacheFrontendUser'][1])) ? $GLOBALS['TL_LANG']['tl_maintenance']['cacheFrontendUser'][1] : '';
         $objTemplate->cacheWarmupSubmit = $GLOBALS['TL_LANG']['tl_maintenance']['cacheWarmupSubmit'];
 
         return $objTemplate->parse();
@@ -216,7 +221,7 @@ class CacheWarmup extends \Backend implements \executable
 
     public function getCacheKey($strCacheKey)
     {
-        /** @var \PageModel $objPage */
+        /* @var PageModel $objPage */
         global $objPage;
 
         // do not modify, when mobile layout is set explicitely
@@ -225,7 +230,7 @@ class CacheWarmup extends \Backend implements \executable
         }
 
         // modify CacheKey due to system/modules/core/classes/FrontendTemplate.php#234-244
-        if (\Input::cookie('TL_VIEW') == 'mobile' || \Environment::get('agent')->mobile) {
+        if ('mobile' === Input::cookie('TL_VIEW') || Environment::get('agent')->mobile) {
             $strCacheKey .= '.mobile';
         }
 

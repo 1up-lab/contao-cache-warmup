@@ -1,14 +1,9 @@
-h2.sub_headline_cache_warmup {
-    background: url("../images/cache.png") no-repeat left center;
-}
-
-h2.sub_headline_cache_warmup {
-    margin: 3px 18px 9px;
-    padding: 6px 0 8px 36px;
-    color: #8ab858;
-    font-size: 14px;
-    font-size: .875rem;
-}
+/*h2.sub_headline_cache_warmup {*/
+    /*margin: 3px 18px 9px;*/
+    /*padding: 6px 0 8px 36px;*/
+    /*font-size: 14px;*/
+    /*font-size: .875rem;*/
+/*}*/
 
 #tl_cache_warmup {
     padding: 0 18px 18px;
@@ -16,21 +11,17 @@ h2.sub_headline_cache_warmup {
 }
 
 #cache_warmup_loading {
-    margin: 0 0 12px;
-    padding: 12px 12px 12px 36px;
-    background: url("../../../../themes/default/images/loading.gif") no-repeat 2px center;
-    line-height: 1;
-    font-size: 16px;
-    font-size: 1rem;
-    color: #4b85ba;
+    margin: 0;
+    padding: 12px 12px 12px 24px;
+    background: url("../../../../system/themes/flexible/icons/loading.svg") no-repeat left center;
+    background-size: 16px;
+    color: #006494;
 }
 
 #cache_warmup_complete {
-    margin: 0 0 12px;
-    padding: 12px 12px 12px 36px;
-    background: url("../../../../themes/default/images/help.gif") no-repeat left center;
-    line-height: 1;
-    font-size: 16px;
-    font-size: 1rem;
-    color: #77ac45;
+    margin: 0;
+    padding: 12px 12px 12px 24px;
+    background: url("../../../../system/themes/flexible/icons/ok.svg") no-repeat left center;
+    background-size: 16px;
+    color: #006494;
 }

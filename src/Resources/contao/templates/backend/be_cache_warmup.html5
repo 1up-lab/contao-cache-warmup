@@ -1,7 +1,7 @@
 
 <div id="tl_maintenance_cache_warmup" class="maintenance_<?php echo $this->isActive ? 'active' : 'inactive'; ?>">
 
-    <h2 class="sub_headline_cache_warmup"><?php echo $this->cacheWarmupHeadline; ?></h2>
+    <h2 class="sub_headline sub_headline_cache_warmup"><?php echo $this->cacheWarmupHeadline; ?></h2>
 
     <?php if ($this->cacheWarmupMessage): ?>
     <div class="tl_message">
@@ -64,7 +64,7 @@
     <?php else: ?>
     <form action="<?php echo $this->action; ?>" class="tl_form" method="get">
         <div class="tl_formbody_edit">
-            <input type="hidden" name="act" value="cache_warmup">
+            <input type="hidden" name="act" value="page_cache_warmup">
             <input type="hidden" name="do" value="maintenance">
             <input type="hidden" name="rt" value="<?php echo REQUEST_TOKEN; ?>">
             <div class="tl_tbox">

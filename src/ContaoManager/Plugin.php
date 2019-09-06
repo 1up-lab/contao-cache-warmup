@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Oneup\Contao\MailChimpBundle\ContaoManager;
+namespace Oneup\Contao\PageCacheWarmupBundle\ContaoManager;
 
 use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
