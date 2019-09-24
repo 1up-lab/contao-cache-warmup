@@ -130,7 +130,7 @@ class CacheWarmup extends Backend implements \executable
             // Check the request token (see #4007)
             if (!isset($_GET['rt']) || !RequestToken::validate(Input::get('rt'))) {
                 $this->Session->set('INVALID_TOKEN_URL', Environment::get('request'));
-                $this->redirect('contao/confirm.php');
+                self::redirect('contao/confirm.php');
             }
 
             // HOOK: take additional cacheable pages
@@ -144,7 +144,7 @@ class CacheWarmup extends Backend implements \executable
             // Return if there are no pages to cache
             if (empty($arrPages)) {
                 $_SESSION['REBUILD_CACHE_ERROR'] = $GLOBALS['TL_LANG']['tl_maintenance']['noCacheable'];
-                $this->redirect($this->getReferer());
+                self::redirect(self::getReferer());
             }
 
             $this->import('Automator');
@@ -153,15 +153,10 @@ class CacheWarmup extends Backend implements \executable
             $this->Automator->purgePageCache();
 
             // Hide unpublished elements
-            $this->setCookie('FE_PREVIEW', 0, ($time - 86400));
+            self::setCookie('FE_PREVIEW', 0, ($time - 86400));
 
             // Calculate the hash
             $strHash = sha1(session_id() . (!Config::get('disableIpCheck') ? Environment::get('ip') : '') . 'FE_USER_AUTH');
-
-            // Remove old sessions
-            $this->Database
-                ->prepare('DELETE FROM tl_session WHERE tstamp<? OR hash=?')
-                ->execute(($time - Config::get('sessionTimeout')), $strHash);
 
             // TODO: apply to guzzle
             // Log in the front end user
